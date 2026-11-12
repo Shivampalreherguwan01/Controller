@@ -29,11 +29,11 @@ class PersistentService : Service() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        val notificationIntent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
         val pendingIntent = PendingIntent.getActivity(
-            this, 0, notificationIntent,
+            this, 0,
+            Intent(this, MainActivity::class.java).apply {
+                this.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
