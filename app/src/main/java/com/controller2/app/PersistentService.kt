@@ -14,17 +14,17 @@ import androidx.core.app.NotificationCompat
 class PersistentService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val channelId = "persistent_service_channel"
+        val channelId = "persistent_service_channel_high"
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 channelId,
                 "Controller Service",
-                NotificationManager.IMPORTANCE_LOW
+                NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 description = "Background persistence channel"
-                setShowBadge(false)
+                setShowBadge(true)
             }
             notificationManager.createNotificationChannel(channel)
         }
@@ -43,7 +43,8 @@ class PersistentService : Service() {
             .setContentText("s")
             .setOngoing(true)
             .setContentIntent(pendingIntent)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
             .build()
 
         startForeground(1002, notification)
