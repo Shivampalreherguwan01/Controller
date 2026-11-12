@@ -10,7 +10,7 @@ import android.view.accessibility.AccessibilityEvent
 class MyAccessibilityService : AccessibilityService() {
 
     private var isVolumeUpPressed = false
-    private var isPowerPressed = false
+    private var isVolumeDownPressed = false
     private val handler = Handler(Looper.getMainLooper())
     private var triggerRunnable: Runnable? = null
     private var isTriggered = false
@@ -27,20 +27,20 @@ class MyAccessibilityService : AccessibilityService() {
         val keyCode = event.keyCode
         val action = event.action
 
-        // Track Volume Up and Power button states
+        // Track Volume Up and Volume Down button states
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             isVolumeUpPressed = (action == KeyEvent.ACTION_DOWN)
-        } else if (keyCode == KeyEvent.KEYCODE_POWER) {
-            isPowerPressed = (action == KeyEvent.ACTION_DOWN)
+        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            isVolumeDownPressed = (action == KeyEvent.ACTION_DOWN)
         }
 
-        // Check if both Volume Up and Power are pressed together
-        if (isVolumeUpPressed && isPowerPressed) {
+        // Check if both Volume Up and Volume Down are pressed together
+        if (isVolumeUpPressed && isVolumeDownPressed) {
             if (!isTriggered) {
                 isTriggered = true
                 // Wait for 1 second (1000ms) hold duration
                 triggerRunnable = Runnable {
-                    if (isVolumeUpPressed && isPowerPressed) {
+                    if (isVolumeUpPressed && isVolumeDownPressed) {
                         openMainActivity()
                     }
                 }
@@ -49,7 +49,7 @@ class MyAccessibilityService : AccessibilityService() {
         } else {
             // Reset if keys are released before 1 second
             if (action == KeyEvent.ACTION_UP) {
-                if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_POWER) {
+                if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
                     isTriggered = false
                     triggerRunnable?.let { handler.removeCallbacks(it) }
                 }
