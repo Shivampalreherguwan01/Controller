@@ -29,7 +29,6 @@ class PersistentService : Service() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        // Tap karne par MainActivity khulegi
         val notificationIntent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
@@ -38,7 +37,6 @@ class PersistentService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // Notification me sirf "s" likha hoga aur yeh swipe karke hategi nahi
         val notification: Notification = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(android.R.drawable.ic_menu_info_details)
             .setContentTitle("s")
