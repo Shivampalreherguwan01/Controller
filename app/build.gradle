@@ -7,6 +7,15 @@ android {
     namespace 'com.controller2.app'
     compileSdk 34
 
+    signingConfigs {
+        release {
+            storeFile file("release-key.jks")
+            storePassword System.getenv("KEYSTORE_PASSWORD")
+            keyAlias System.getenv("KEY_ALIAS")
+            keyPassword System.getenv("KEY_PASSWORD")
+        }
+    }
+
     defaultConfig {
         applicationId "com.controller2.app"
         minSdk 26
@@ -17,8 +26,12 @@ android {
 
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
