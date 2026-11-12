@@ -1,36 +1,35 @@
 package com.controller2.app
 
 import android.accessibilityservice.AccessibilityService
+import android.content.Intent
+import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
-import android.view.accessibility.AccessibilityNodeInfo
 
 class MyAccessibilityService : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (event == null) return
-
-        val packageName = event.packageName?.toString() ?: ""
-
-        if (packageName.contains("settings", ignoreCase = true)) {
-            val rootNode: AccessibilityNodeInfo? = rootInActiveWindow
-            if (rootNode != null) {
-                checkAndBlockUninstall(rootNode)
-            }
-        }
+        // Accessibility events monitoring
     }
 
-    private fun checkAndBlockUninstall(node: AccessibilityNodeInfo) {
-        for (i in 0 until node.childCount) {
-            val child = node.getChild(i) ?: continue
-            val text = child.text?.toString()?.lowercase() ?: ""
-            
-            if (text.contains("controller 2") || text.contains("uninstall")) {
-                performGlobalAction(GLOBAL_ACTION_HOME)
-                break
-            }
-            checkAndBlockUninstall(child)
-        }
+    override fun onInterrupt() {
+        // Required override
     }
 
-    override fun onInterrupt() {}
+    // Yeh background me physical keys (jaise Volume Up/Down) ko detect karega
+    override fun onKeyEvent(event: KeyEvent?): Boolean {
+        if (event != null && event.action == KeyEvent.ACTION_DOWN) {
+            when (event.keyCode) {
+                KeyEvent.KEYCODE_VOLUME_UP, KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                    // Jab volume button dabega, yeh MainActivity ko foreground me le aayega
+                    val intent = Intent(this, MainActivity::class.java).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    }
+                    startActivity(intent)
+                    return true
+                }
+            }
+        }
+        return super.onKeyEvent(event)
+    }
 }
