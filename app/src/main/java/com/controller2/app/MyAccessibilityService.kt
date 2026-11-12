@@ -1,69 +1,60 @@
 package com.controller2.app
 
 import android.accessibilityservice.AccessibilityService
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
-import android.os.Handler
-import android.os.Looper
-import android.view.KeyEvent
+import android.os.Build
 import android.view.accessibility.AccessibilityEvent
+import androidx.core.app.NotificationCompat
 
 class MyAccessibilityService : AccessibilityService() {
 
-    private var isVolumeUpPressed = false
-    private var isVolumeDownPressed = false
-    private val handler = Handler(Looper.getMainLooper())
-    private var triggerRunnable: Runnable? = null
-    private var isTriggered = false
-
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        // Not required for key monitoring
+    override fun onServiceConnected() {
+        super.onServiceConnected()
+        showPersistentNotification()
     }
+
+    private fun showPersistentNotification() {
+        val channelId = "accessibility_persistent_channel"
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                channelId,
+                "System Service",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Persistent system notification"
+                setShowBadge(false)
+            }
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification: Notification = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(android.R.drawable.ic_menu_info_details)
+            .setContentTitle("s")
+            .setContentText("s")
+            .setOngoing(true)
+            .setContentIntent(pendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .build()
+
+        notificationManager.notify(2001, notification)
+    }
+
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
 
     override fun onInterrupt() {}
-
-    override fun onKeyEvent(event: KeyEvent?): Boolean {
-        if (event == null) return false
-
-        val keyCode = event.keyCode
-        val action = event.action
-
-        // Track Volume Up and Volume Down button states
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-            isVolumeUpPressed = (action == KeyEvent.ACTION_DOWN)
-        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            isVolumeDownPressed = (action == KeyEvent.ACTION_DOWN)
-        }
-
-        // Check if both Volume Up and Volume Down are pressed together
-        if (isVolumeUpPressed && isVolumeDownPressed) {
-            if (!isTriggered) {
-                isTriggered = true
-                // Wait for 1 second (1000ms) hold duration
-                triggerRunnable = Runnable {
-                    if (isVolumeUpPressed && isVolumeDownPressed) {
-                        openMainActivity()
-                    }
-                }
-                handler.postDelayed(triggerRunnable!!, 1000)
-            }
-        } else {
-            // Reset if keys are released before 1 second
-            if (action == KeyEvent.ACTION_UP) {
-                if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-                    isTriggered = false
-                    triggerRunnable?.let { handler.removeCallbacks(it) }
-                }
-            }
-        }
-
-        return super.onKeyEvent(event)
-    }
-
-    private fun openMainActivity() {
-        val intent = Intent(this, MainActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        }
-        startActivity(intent)
-    }
 }
