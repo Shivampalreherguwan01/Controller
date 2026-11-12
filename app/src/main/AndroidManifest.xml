@@ -7,16 +7,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
-        <!-- MainActivity: No launcher icon so it stays hidden from app drawer -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
-            
-            <!-- Secret Dialer Code Receiver: Opens app when user dials *#*9343747271*#* -->
-            <intent-filter>
-                <action android:name="android.provider.Telephony.SECRET_CODE" />
-                <data android:scheme="android_secret_code" android:host="9343747271" />
-            </intent-filter>
         </activity>
 
         <service

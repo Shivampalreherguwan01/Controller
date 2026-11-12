@@ -1,36 +1,25 @@
 package com.controller2.app
 
-import android.content.Intent
 import android.os.Bundle
-import android.provider.Settings
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.view.KeyEvent
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
         
-        val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(50, 100, 50, 50)
-        }
+        Toast.makeText(this, "Controller 2 Active (Hidden Mode)", Toast.LENGTH_LONG).show()
+    }
 
-        val title = TextView(this).apply {
-            text = "Controller 2 Service Panel"
-            textSize = 20f
+    // Volume Up ya Down dabane par app foreground me aa jayegi
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            Toast.makeText(this, "Shortcut Triggered!", Toast.LENGTH_SHORT).show()
+            // Yahan aap app ka main control panel ya dashboard open kar sakte hain
+            return true
         }
-
-        val btn = Button(this).apply {
-            text = "Open Accessibility Settings"
-            setOnClickListener {
-                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-            }
-        }
-
-        layout.addView(title)
-        layout.addView(btn)
-        setContentView(layout)
+        return super.onKeyDown(keyCode, event)
     }
 }
